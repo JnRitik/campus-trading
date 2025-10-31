@@ -26,6 +26,19 @@ const TopMovers = () => {
   const [error, setError] = useState(false);
 
   useEffect(() => {
+    const toNumber = (value: unknown) => {
+      if (value === null || value === undefined) return 0;
+      const normalized = String(value).replace(/,/g, '').trim();
+      const parsed = Number(normalized);
+      return Number.isFinite(parsed) ? parsed : 0;
+    };
+
+    const toArray = (payload: any): any[] => {
+      if (Array.isArray(payload)) return payload;
+      if (Array.isArray(payload?.data)) return payload.data;
+      return [];
+    };
+
     const fetchTopMovers = async () => {
       try {
         const [gainersRes, losersRes] = await Promise.all([
@@ -33,21 +46,37 @@ const TopMovers = () => {
           apiClient.get(ENDPOINTS.losers),
         ]);
 
-        const mapItem = (item: any): StockMover => {
-          const symbol = item.symbol || item.tradingsymbol || item.symbolName || 'N/A';
-          const name = item.name || item.companyName || '';
+        const mapItem = (item: any): StockMover | null => {
+          const symbol = (item?.symbol || item?.tradingsymbol || item?.symbolName || '').toString().trim();
+          const rawName = (item?.name || item?.companyName || '').toString().trim();
+          const price = toNumber(item?.lastPrice ?? item?.ltp ?? item?.price);
+          const changePercent = toNumber(item?.changePercent ?? item?.pChange ?? item?.change);
+          const volume = item?.totalTradedVolume ?? item?.volume;
+
+          if (!symbol || !rawName || price <= 0) {
+            return null;
+          }
+
           return {
-            symbol: symbol,
-            companyName: name && name !== symbol ? name : symbol,
+            symbol,
+            companyName: rawName !== symbol ? rawName : symbol,
             logoUrl: '',
-            price: Number(item.lastPrice || item.ltp || 0),
-            changePercent: Number(item.changePercent || item.pChange || item.change || 0),
-            volume: String(item.totalTradedVolume || item.volume || '—'),
+            price,
+            changePercent,
+            volume: String(volume ?? '—'),
           };
         };
 
-        setGainers((gainersRes.data || gainersRes || []).map(mapItem));
-        setLosers((losersRes.data || losersRes || []).map(mapItem));
+        const gainersList = toArray(gainersRes.data)
+          .map(mapItem)
+          .filter((item): item is StockMover => Boolean(item));
+
+        const losersList = toArray(losersRes.data)
+          .map(mapItem)
+          .filter((item): item is StockMover => Boolean(item));
+
+        setGainers(gainersList);
+        setLosers(losersList);
         // setVolumeShockers([]);
         setIsLoading(false);
       } catch (err) {

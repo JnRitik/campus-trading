@@ -52,6 +52,35 @@ const AddStockModal = ({
   const [loading, setLoading] = useState(false);
   const [err, setErr] = useState<string | null>(null);
 
+  const toNumber = (value: unknown) => {
+    if (value === null || value === undefined) return 0;
+    const normalized = String(value).replace(/,/g, '').trim();
+    const parsed = Number(normalized);
+    return Number.isFinite(parsed) ? parsed : 0;
+  };
+
+  const hasValidName = (item: any) => {
+    const name = (item?.name ?? item?.companyName ?? '').toString().trim();
+    return name.length > 0;
+  };
+
+  const extractList = (payload: any): any[] => {
+    if (Array.isArray(payload)) return payload;
+    if (Array.isArray(payload?.data)) return payload.data;
+    return [];
+  };
+
+  const sanitizeResults = (list: any[]): ApiStock[] => {
+    return list
+      .filter((item) => item && item.symbol && hasValidName(item))
+      .map((item) => ({
+        symbol: (item.symbol || '').toString(),
+        lastPrice: toNumber(item.lastPrice ?? item.price ?? item.ltp),
+        changePercent: toNumber(item.changePercent ?? item.pChange ?? item.change),
+      }))
+      .filter((item) => (item.lastPrice ?? 0) > 0);
+  };
+
   useEffect(() => {
     const run = async () => {
       if (!searchQuery || searchQuery.length < 2) {
@@ -62,7 +91,8 @@ const AddStockModal = ({
         setLoading(true);
         setErr(null);
         const { data } = await apiClient.get(ENDPOINTS.stockSearch, { params: { symbol: searchQuery } });
-        setResults(data || []);
+        const sanitized = sanitizeResults(extractList(data));
+        setResults(sanitized);
       } catch (e: any) {
         setErr("Stock data is temporarily unavailable. Please wait for one minute and try again.");
       } finally {

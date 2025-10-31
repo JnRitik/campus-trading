@@ -42,24 +42,33 @@ const MostTraded = () => {
         }
         
         // Choose "most traded" by volume; map fields consistently
-        const normalized = stockData.map((it: any) => {
-          const symbol = it.symbol;
-          const name = it.name || it.companyName || '';
-          return {
-            symbol: symbol,
-            companyName: name && name !== symbol ? name : symbol,
-            logoUrl: "",
-            price: toNumber(it.price ?? it.lastPrice ?? it.ltp),
-            changePercent: toNumber(it.changePercent ?? it.pChange),
-            volume: toNumber(it.totalTradedVolume ?? it.volume),
-          };
-        });
+        const normalized = stockData
+          .map((it: any) => {
+            const symbol = (it.symbol || '').toString();
+            const name = (it.name || it.companyName || '').toString().trim();
+            const price = toNumber(it.price ?? it.lastPrice ?? it.ltp);
+            const volume = toNumber(it.totalTradedVolume ?? it.volume);
+
+            if (!symbol || !name || price <= 0) {
+              return null;
+            }
+
+            return {
+              symbol,
+              companyName: name !== symbol ? name : symbol,
+              logoUrl: "",
+              price,
+              changePercent: toNumber(it.changePercent ?? it.pChange),
+              volume,
+            };
+          })
+          .filter((stock): stock is TradedStock & { volume: number } => Boolean(stock));
         
         const topByVolume = normalized
-          .filter((s: any) => s.symbol && s.volume > 0)
-          .sort((a: any, b: any) => b.volume - a.volume)
+          .filter((s) => s.volume > 0)
+          .sort((a, b) => (b.volume ?? 0) - (a.volume ?? 0))
           .slice(0, 8)
-          .map(({ volume, ...rest }: any) => rest);
+          .map(({ volume, ...rest }) => rest);
 
         setStocks(topByVolume);
         setIsLoading(false);

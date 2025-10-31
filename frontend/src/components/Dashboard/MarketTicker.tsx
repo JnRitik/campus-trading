@@ -21,6 +21,31 @@ const MarketTicker = () => {
   const pauseStartTimeRef = useRef(0); // Track when pause started
   const isPausedRef = useRef(false); // Use ref for pause state
 
+  const toNumber = (value: unknown) => {
+    if (value === null || value === undefined) return 0;
+    const normalized = String(value).replace(/,/g, '').trim();
+    const parsed = Number(normalized);
+    return Number.isFinite(parsed) ? parsed : 0;
+  };
+
+  const hasValidName = (item: any) => {
+    const name = (item?.name ?? item?.companyName ?? '').toString().trim();
+    return name.length > 0;
+  };
+
+  const sanitizeStocks = (list: any[]): StockData[] => {
+    return list
+      .filter(item => item && item.symbol && hasValidName(item))
+      .map(item => ({
+        symbol: (item.symbol || '').toString(),
+        name: (item.name ?? item.companyName ?? '').toString().trim(),
+        lastPrice: toNumber(item.lastPrice ?? item.price ?? item.ltp),
+        change: toNumber(item.change),
+        pChange: toNumber(item.pChange ?? item.changePercent),
+      }))
+      .filter(stock => stock.lastPrice > 0);
+  };
+
   // Function to get or create persistent animation start time
   const getAnimationStartTime = () => {
     const storageKey = 'marketTickerStartTime';
@@ -154,7 +179,7 @@ const MarketTicker = () => {
         }
         
         // Use all stocks instead of limiting to 10
-        const finalStocks = allStocks;
+        const finalStocks = sanitizeStocks(allStocks);
         
         // Set stocks on initial load
         setStocks(finalStocks);
@@ -187,9 +212,11 @@ const MarketTicker = () => {
           allStocks = response.data.data;
         }
 
-        if (allStocks.length > 0) {
+        const sanitized = sanitizeStocks(allStocks);
+
+        if (sanitized.length > 0) {
           // Update state properly using React pattern
-          setStocks(allStocks);
+          setStocks(sanitized);
         }
       } catch (err) {
         // Silently handle refresh errors
