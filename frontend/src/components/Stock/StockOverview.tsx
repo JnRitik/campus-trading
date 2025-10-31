@@ -1,5 +1,6 @@
 import { TrendingUp, TrendingDown, ExternalLink } from "lucide-react";
 import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 
 interface StockOverviewProps {
   name: string;
@@ -77,25 +78,45 @@ const StockOverview = ({
           </div>
 
           {hasValidSymbol && (
-            <div className="mt-4 flex flex-col gap-2 text-sm">
-              <a
-                href={tradingViewUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-1 font-medium text-primary hover:underline"
-              >
-                View on TradingView
-                <ExternalLink className="h-3.5 w-3.5" aria-hidden="true" />
-              </a>
-              <a
-                href={screenerUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-1 font-medium text-primary hover:underline"
-              >
-                Fundamental Analysis on Screener
-                <ExternalLink className="h-3.5 w-3.5" aria-hidden="true" />
-              </a>
+            <div className="mt-5 rounded-lg border border-border bg-muted/30 p-4">
+              <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                Need deeper analysis?
+              </p>
+              <p className="mt-1 text-sm text-muted-foreground">
+                Explore {normalizedSymbol} across external tools
+              </p>
+              <div className="mt-3 flex flex-wrap gap-2">
+                <Button
+                  asChild
+                  variant="outline"
+                  size="sm"
+                  className="gap-1"
+                >
+                  <a
+                    href={tradingViewUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    <ExternalLink className="h-4 w-4" aria-hidden="true" />
+                    <span>View Chart</span>
+                  </a>
+                </Button>
+                <Button
+                  asChild
+                  variant="outline"
+                  size="sm"
+                  className="gap-1"
+                >
+                  <a
+                    href={screenerUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    <ExternalLink className="h-4 w-4" aria-hidden="true" />
+                    <span>View Fundamentals</span>
+                  </a>
+                </Button>
+              </div>
             </div>
           )}
         </div>
