@@ -23,7 +23,14 @@ const StockOverview = ({
   const safeChange = change ?? 0;
   const safeChangePercent = changePercent ?? 0;
   const isPositive = safeChange >= 0;
-  const tradingViewUrl = `https://in.tradingview.com/chart/?symbol=${encodeURIComponent(symbol)}`;
+  const normalizedSymbol = symbol?.toUpperCase?.() || symbol;
+  const hasValidSymbol = typeof normalizedSymbol === "string" && normalizedSymbol.trim() !== "" && normalizedSymbol !== "—";
+  const tradingViewUrl = hasValidSymbol
+    ? `https://in.tradingview.com/chart/?symbol=${encodeURIComponent(normalizedSymbol)}`
+    : undefined;
+  const screenerUrl = hasValidSymbol
+    ? `https://www.screener.in/company/${encodeURIComponent(normalizedSymbol)}/consolidated/`
+    : undefined;
 
   return (
     <Card className="p-6">
@@ -69,15 +76,28 @@ const StockOverview = ({
             </div>
           </div>
 
-          <a
-            href={tradingViewUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="mt-3 inline-flex items-center gap-1 text-sm font-medium text-primary hover:underline"
-          >
-            View on TradingView
-            <ExternalLink className="h-3.5 w-3.5" aria-hidden="true" />
-          </a>
+          {hasValidSymbol && (
+            <div className="mt-4 flex flex-col gap-2 text-sm">
+              <a
+                href={tradingViewUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1 font-medium text-primary hover:underline"
+              >
+                View on TradingView
+                <ExternalLink className="h-3.5 w-3.5" aria-hidden="true" />
+              </a>
+              <a
+                href={screenerUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1 font-medium text-primary hover:underline"
+              >
+                Fundamental Analysis on Screener
+                <ExternalLink className="h-3.5 w-3.5" aria-hidden="true" />
+              </a>
+            </div>
+          )}
         </div>
       </div>
     </Card>
