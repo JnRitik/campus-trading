@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { ArrowLeft, RefreshCw, Plus, Eye } from "lucide-react";
+import { ArrowLeft, RefreshCw, Plus } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import StockOverview from "@/components/Stock/StockOverview";
 import StockChart from "@/components/Stock/StockChart";

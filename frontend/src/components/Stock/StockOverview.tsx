@@ -1,4 +1,4 @@
-import { TrendingUp, TrendingDown } from "lucide-react";
+import { TrendingUp, TrendingDown, ExternalLink } from "lucide-react";
 import { Card } from "@/components/ui/card";
 
 interface StockOverviewProps {
@@ -23,6 +23,7 @@ const StockOverview = ({
   const safeChange = change ?? 0;
   const safeChangePercent = changePercent ?? 0;
   const isPositive = safeChange >= 0;
+  const tradingViewUrl = `https://in.tradingview.com/chart/?symbol=${encodeURIComponent(symbol)}`;
 
   return (
     <Card className="p-6">
@@ -67,6 +68,16 @@ const StockOverview = ({
               </span>
             </div>
           </div>
+
+          <a
+            href={tradingViewUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="mt-3 inline-flex items-center gap-1 text-sm font-medium text-primary hover:underline"
+          >
+            View on TradingView
+            <ExternalLink className="h-3.5 w-3.5" aria-hidden="true" />
+          </a>
         </div>
       </div>
     </Card>
