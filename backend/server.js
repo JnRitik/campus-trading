@@ -43,10 +43,10 @@ app.use(helmet({
 // Determine allowed origins based on environment
 const allowedOrigins = process.env.NODE_ENV === 'production'
   ? [
-      'https://campus-trading.vercel.app',  // New Vercel deployment
-      'https://campus-trading.netlify.app', // Keep for future Netlify use
-      'https://campus-trading-app.netlify.app',
-      'https://campus-trading-frontend.netlify.app',
+      'https://campus-trading-xi.vercel.app',  // Vercel deployment
+      // 'https://campus-trading.netlify.app', // Legacy Netlify deployments (commented)
+      // 'https://campus-trading-app.netlify.app',
+      // 'https://campus-trading-frontend.netlify.app',
       'http://localhost:3000',
       'http://localhost:3001',
       'http://127.0.0.1:3000',
@@ -187,7 +187,7 @@ async function start() {
            app.listen(PORT, '0.0.0.0', () => {
              console.log(`✅ Server running on http://localhost:${PORT}`);
              console.log(`✅ Health check available at http://localhost:${PORT}/health`);
-             console.log(`✅ CORS enabled for Vercel: https://campus-trading.vercel.app`);
+             console.log(`✅ CORS enabled for Vercel: https://campus-trading-xi.vercel.app`);
              if (mongoose.connection.readyState !== 1) {
                console.log('⚠️ Note: Database features are disabled due to connection issues');
              }
